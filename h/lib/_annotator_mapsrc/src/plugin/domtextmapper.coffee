@@ -39,7 +39,7 @@ class Annotator.Plugin.DomTextMapper extends Annotator.Plugin
           t0 = mapper.timestamp()
           @annotator._reanchorAllAnnotations("corpus change").then ->
             t1 = mapper.timestamp()
-            console.log "corpus change -> refreshed text annotations.",
-              "Time used: ", t1-t0, "ms"
+#            console.log "corpus change -> refreshed text annotations.",
+#              "Time used: ", t1-t0, "ms"
         mapper
 

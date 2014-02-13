@@ -286,6 +286,8 @@ class Annotator.Plugin.TextAnchors extends Annotator.Plugin
 
     if @useDTM
       # Calculate the quote and context using DTM
+#
+#      console.log "Start info:", state.getInfoForNode rangeStart
 
       startOffset = (state.getInfoForNode rangeStart).start
       endOffset = (state.getInfoForNode rangeEnd).end

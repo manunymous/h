@@ -48,9 +48,10 @@ class window.TextMapperCore
   _getContextForCharRange: (start, end) =>
     @_startScan "getContextForCharRange()"
     if start < 0
-      throw Error "Negative range start is invalid!"
+      throw Error "Negative range start (", start, ") is invalid!"
     if end > @_corpus.length
-      throw Error "Range end is after the end of corpus!"
+      throw Error "Range end (", end, ") is after the end of corpus (",
+        @_corpus.length, ")!"
     prefixStart = Math.max 0, start - CONTEXT_LEN
     prefix = @_corpus[ prefixStart ... start ]
     suffix = @_corpus[ end ... end + CONTEXT_LEN ]
