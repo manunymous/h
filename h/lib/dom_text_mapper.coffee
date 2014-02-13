@@ -352,7 +352,7 @@ class window.DomTextMapper extends TextMapperCore
     parentPathInfo.length += lengthDelta
     parentPathInfo.end += lengthDelta
     if isNaN parentPathInfo.end
-      throw new Error "wtf"
+      throw new Error "Internal error: got a NaN"
 
     # Do the same with the next ancestor
     @_alterAncestorsMappingData parentPathInfo.node, parentPathInfo,
@@ -380,7 +380,7 @@ class window.DomTextMapper extends TextMapperCore
       info.start += delta
       info.end += delta
       if isNaN info.end
-        throw new Error "wtf"
+        throw new Error "Internal error: got a NaN"
 
   # Return info for a given path in the DOM
   _getInfoForPath: (path) =>
@@ -887,8 +887,7 @@ class window.DomTextMapper extends TextMapperCore
   #    parent node that is not accounted for by this node
   collectPositions: (node, path, parentContent = null, parentIndex = 0, index = 0) ->
     if isNaN parentIndex
-      @log "Should collect positions @", path, ", but parentIndex is NaN."  
-      throw new Error "wtf"
+      throw new Error "Internal error: got a NaN"
     debug = false # path in ["./DIV", "./DIV/DIV"]
     if debug
       @log "Post-processing path ", path
@@ -910,7 +909,7 @@ class window.DomTextMapper extends TextMapperCore
       pathInfo.start = parentIndex + index
       pathInfo.end = parentIndex + index
       if isNaN pathInfo.end
-        throw new Error "wtf"
+        throw new Error "Internal error: got a NaN"
       pathInfo.atomic = false
       if debug
         @log "Path", path, "is empty; setting it to atomic."
@@ -935,7 +934,7 @@ class window.DomTextMapper extends TextMapperCore
     pathInfo.start = parentIndex + startIndex
     pathInfo.end = parentIndex + endIndex
     if isNaN pathInfo.end
-      throw new Error "wtf"
+      throw new Error "Internal error: got a NaN"
     pathInfo.atomic = atomic
 
     if debug
