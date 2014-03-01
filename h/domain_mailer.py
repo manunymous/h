@@ -11,13 +11,14 @@ from pyramid.events import subscriber
 from pyramid.renderers import render
 
 from h import events
-from h.notifier import user_profile_url, standalone_url, AnnotationNotifier
+from h.notifier import user_profile_url, standalone_url, AnnotationNotifier, NotificationTemplate
 
 log = logging.getLogger(__name__)
 
 
-class DocumentOwnerNotificationTemplate(object):
+class DocumentOwnerTemplate(NotificationTemplate):
     template = 'h:templates/emails/document_owner_notification.txt'
+    subject = 'h:templates/emails/document_owner_notification_subject.txt'
 
     @staticmethod
     def _create_template_map(request, annotation):
@@ -36,25 +37,11 @@ class DocumentOwnerNotificationTemplate(object):
         }
 
     @staticmethod
-    def render(request, annotation):
-        return render(DocumentOwnerNotificationTemplate.template,
-                      DocumentOwnerNotificationTemplate._create_template_map(request, annotation),
-                      request)
+    def get_recipients(request, annotation, data):
+        return [data['email']]
 
-    @staticmethod
-    def generate_notification(request, annotation, data):
-        recipients = [data['email']]
-        rendered = DocumentOwnerNotificationTemplate.render(request, annotation)
-        subject = "New annotation in your page: " + annotation['title'] + \
-                  " (" + annotation['uri'] + ")"
-        return {
-            'status': True,
-            'recipients': recipients,
-            'rendered': rendered,
-            'subject': subject
-        }
 
-AnnotationNotifier.register_template('document_owner', DocumentOwnerNotificationTemplate.generate_notification)
+AnnotationNotifier.register_template('document_owner', DocumentOwnerTemplate.generate_notification)
 
 requests_cache.install_cache('document_cache')
 document_cache = {}

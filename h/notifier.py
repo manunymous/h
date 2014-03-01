@@ -28,8 +28,40 @@ def standalone_url(request, id):
     return request.application_url + '/a/' + id
 
 
-class ReplyTemplate(object):
+class NotificationTemplate(object):
+    @classmethod
+    def render(cls, request, annotation):
+        tmap = cls._create_template_map(request, annotation)
+        template = render(cls.template, tmap, request)
+        subject = render(cls.subject, tmap, request)
+        return template, subject
+
+    # Override this for checking
+    @staticmethod
+    def check_conditions(annotation, data):
+        return True
+
+    @classmethod
+    def generate_notification(cls, request, annotation, data):
+        checks = cls.check_conditions(annotation, data)
+        if not checks:
+            return {'status': False}
+        try:
+            rendered, subject = cls.render(request, annotation)
+            recipients = cls.get_recipients(request, annotation, data)
+        except:
+            return {'status': False}
+        return {
+            'status': True,
+            'recipients': recipients,
+            'rendered': rendered,
+            'subject': subject
+        }
+
+
+class ReplyTemplate(NotificationTemplate):
     template = 'h:templates/emails/reply_notification.pt'
+    subject = 'h:templates/emails/reply_notification_subject.txt'
 
     @staticmethod
     def _create_template_map(request, reply):
@@ -58,35 +90,27 @@ class ReplyTemplate(object):
         }
 
     @staticmethod
-    def render(request, reply):
-        return render(ReplyTemplate.template, ReplyTemplate._create_template_map(request, reply), request)
-
-    @staticmethod
-    def generate_notification(request, annotation, data):
-        # Get the e-mail of the owner
-        if not annotation['parent']['user']: return {'status': False}
-        # Do not notify me about my own message
-        if annotation['user'] == annotation['parent']['user']: return {'status': False}
-
+    def get_recipients(request, annotation, data):
         username = re.search("^acct:([^@]+)", annotation['parent']['user']).group(1)
         userobj = models.User.get_by_username(request, username)
         if not userobj:
             log.warn("Warning! User not found! " + str(username))
-            return {'status': False}
-        recipients = [userobj.email]
-        rendered = ReplyTemplate.render(request, annotation)
-        subject = "A reply to you at: " + annotation['title'] + \
-                  "(" + annotation['uri'] + ")"
-        return {
-            'status': True,
-            'recipients': recipients,
-            'rendered': rendered,
-            'subject': subject
-        }
+            raise Exception('User not found')
+        return [userobj.email]
+
+    @staticmethod
+    def check_conditions(annotation, data):
+        # Get the e-mail of the owner
+        if not annotation['parent']['user']: return False
+        # Do not notify me about my own message
+        if annotation['user'] == annotation['parent']['user']: return False
+        # Else okay
+        return True
 
 
-class CustomSearchTemplate(object):
+class CustomSearchTemplate(NotificationTemplate):
     template = 'h:templates/emails/custom_search.pt'
+    subject = 'h:templates/emails/custom_search_subject.txt'
 
     @staticmethod
     def _create_template_map(request, annotation):
@@ -101,28 +125,13 @@ class CustomSearchTemplate(object):
         }
 
     @staticmethod
-    def render(request, annotation):
-        return render(CustomSearchTemplate.template,
-                      CustomSearchTemplate._create_template_map(request, annotation),
-                      request)
-
-    @staticmethod
-    def generate_notification(request, annotation, data):
-        username = re.search("^acct:([^@]+)", annotation['user']).group(1)
+    def get_recipients(request, annotation, data):
+        username = re.search("^acct:([^@]+)", annotation['parent']['user']).group(1)
         userobj = models.User.get_by_username(request, username)
         if not userobj:
             log.warn("Warning! User not found! " + str(username))
-            return {'status': False}
-        recipients = [userobj.email]
-        rendered = CustomSearchTemplate.render(request, annotation)
-        subject = "New annotation for your query: " + annotation['title'] + \
-                  "(" + annotation['uri'] + ")"
-        return {
-            'status': True,
-            'recipients': recipients,
-            'rendered': rendered,
-            'subject': subject
-        }
+            raise Exception('User not found')
+        return [userobj.email]
 
 
 class AnnotationDummyMailer(DummyMailer):
