@@ -32,6 +32,7 @@ class DocumentOwnerNotificationTemplate(object):
             'user': user,
             'path': standalone_url(request, annotation['id']),
             'timestamp': annotation['created'],
+            'selection': annotation['quote']
         }
 
     @staticmethod
