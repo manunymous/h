@@ -9,8 +9,8 @@ get_quote = (annotation) ->
   quote
 
 class Displayer
-  path: window.location.protocol + '//' + window.location.hostname + ':' +
-    window.location.port + '/__streamer__'
+  path: document.baseURI[..(document.baseURI.lastIndexOf '/')-2] + '__streamer__'
+
   idTable : {}
 
   this.$inject = ['$scope','$element','$timeout','streamfilter']

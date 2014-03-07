@@ -146,8 +146,7 @@ class StreamSearch
   constructor: (
     $element, $location, $scope, $timeout, streamfilter
   ) ->
-    $scope.path = window.location.protocol + '//' + window.location.hostname + ':' +
-      window.location.port + '/__streamer__'
+    $scope.path = document.baseURI[..-('/stream/'.length + 1)] + '/__streamer__/'
     $scope.empty = false
 
     # Generate client ID
