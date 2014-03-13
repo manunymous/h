@@ -195,6 +195,8 @@ def includeme(config):
         )
     except:
         with app.test_request_context():
+            log.info(Annotation)
+            log.info(type(Annotation))
             Annotation.update_settings()
             Annotation.create_all()
             Document.create_all()
