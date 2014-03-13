@@ -120,6 +120,7 @@ def before_request():
     flask.g.auth = auth.Authenticator(models.Consumer.get_by_key)
     flask.g.authorize = authorize
     flask.g.before_annotation_update = anonymize_deletes
+    flask.g.annotation_class = Annotation
 
 
 def after_request(response):
