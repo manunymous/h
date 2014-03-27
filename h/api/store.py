@@ -11,7 +11,6 @@ import urlparse
 import flask
 
 from annotator import auth, store, es
-from annotator.annotation import Annotation
 from annotator.document import Document
 
 from pyramid.httpexceptions import exception_response
@@ -21,6 +20,7 @@ from pyramid.threadlocal import get_current_request
 from pyramid.wsgi import wsgiapp2
 
 from h import api, events, interfaces, models
+from h.api.annotation import Annotation
 
 import logging
 log = logging.getLogger(__name__)
@@ -117,6 +117,7 @@ def authorize(annotation, action, user=None):
 
 
 def before_request():
+    flask.g.annotation_class = Annotation
     flask.g.auth = auth.Authenticator(models.Consumer.get_by_key)
     flask.g.authorize = authorize
     flask.g.before_annotation_update = anonymize_deletes
